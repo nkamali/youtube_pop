@@ -23,8 +23,6 @@ module YoutubePop
   # feed/entry/author/name
   class StandardApi
     def initialize
-      @entries = []
-
       options = {
         :timeout      => 2,
         :open_timeout => 2
@@ -38,57 +36,58 @@ module YoutubePop
 
     def top_rated
       response = @conn.get '/feeds/api/standardfeeds/top_rated/'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def top_favorites
       response = @conn.get '/feeds/api/standardfeeds/top_favorites'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def most_shared
       response = @conn.get '/feeds/api/standardfeeds/most_shared'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def most_viewed
       response = @conn.get '/feeds/api/standardfeeds/most_viewed'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def most_popular
       response = @conn.get '/feeds/api/standardfeeds/most_popular'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def most_recent
       response = @conn.get '/feeds/api/standardfeeds/most_recent'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def most_discussed
       response = @conn.get '/feeds/api/standardfeeds/most_discussed'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def most_responded
       response = @conn.get '/feeds/api/standardfeeds/most_responded'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def recently_featured
       response = @conn.get '/feeds/api/standardfeeds/recently_featured'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     def trending_videos
       response = @conn.get '/feeds/api/standardfeeds/on_the_web'
-      @entries = get_entries(response)
+      entries = get_entries(response)
     end
 
     private
 
     def get_entries(response)
+      entries = []
       doc = Nokogiri::XML(response.body)
       doc.css('entry').map do |entry|
         published   = entry.css('published').text
@@ -103,9 +102,9 @@ module YoutubePop
         entry.content   = content
         entry.link      = link
         entry.author_name = author_name
-        @entries << entry
+        entries << entry
       end
-      @entries
+      entries
     end
   end
 end
