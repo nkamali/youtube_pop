@@ -1,6 +1,7 @@
 # YouTubePop
 
-A simple YouTube wrapper around Standard Video Feeds. Gets Top rated, Most viewed, Most shared, Most popular, Most recent, Most discussed, Most
+A very simple YouTube wrapper around Standard Video Feeds. Gets Top rated, Most viewed, Top Favorites, Most shared, Most viewed Most popular, Most recent, Most discussed, Most responded, Recently featured and Trending videos
+
 ## Installation
 
 Add this line to your application's Gemfile:
