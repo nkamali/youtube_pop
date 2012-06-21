@@ -4,6 +4,16 @@ describe YoutubePop::StandardApi do
   before do
     @youtube_pop = YoutubePop::StandardApi.new
   end
+  
+  describe "error handling" do
+    it "raises gem specific errors" do
+      @error_pop = YoutubePop::StandardApi.new
+      @error_pop.instance_variable_set(:@conn, nil)
+      expect { 
+              @error_pop.top_rated
+      }.to raise_exception(YoutubePop::Error)
+    end
+  end
 
   describe '#top_rated' do
     before do

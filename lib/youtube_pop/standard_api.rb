@@ -1,26 +1,19 @@
 require 'youtube_pop/version'
+require 'ostruct'
 require 'faraday'
-require 'nokogiri'
-
+require 'json'
 module YoutubePop
-  # Base error class for the extension. Credit to gem youtube_it
+
   class Error < RuntimeError
-    attr_reader :code
-    def initialize(msg, code = 0)
+    attr_reader :source_exception
+    def initialize(msg, e=$!)
       super(msg)
-      @code = code
+      @source_exception = e
     end
   end
+  
+  Entry = Class.new(OpenStruct)
 
-  class Entry
-    attr_accessor :published, :updated, :content, :link, :author_name
-  end
-
-  # Searches for the following from the response:
-  #
-  # feed/entry/published, feed/entry/updated
-  # feed/entry/content, feed/entry/link rel="alternate" href=
-  # feed/entry/author/name
   class StandardApi
     def initialize
       options = {
@@ -29,82 +22,83 @@ module YoutubePop
       }
       @conn = Faraday.new(:url => 'https://gdata.youtube.com', :options => options) do |builder|
         builder.request  :url_encoded
-        builder.response :logger
         builder.adapter  :net_http
       end
     end
 
     def top_rated
-      response = @conn.get '/feeds/api/standardfeeds/top_rated/'
-      entries = get_entries(response)
+      response = response_from url_for("top_rated")
+      get_entries(response)
     end
 
     def top_favorites
-      response = @conn.get '/feeds/api/standardfeeds/top_favorites'
-      entries = get_entries(response)
+      response = response_from url_for("top_favorites")
+      get_entries(response)
     end
 
     def most_shared
-      response = @conn.get '/feeds/api/standardfeeds/most_shared'
-      entries = get_entries(response)
+      response = response_from url_for("most_shared")
+      get_entries(response)
     end
 
     def most_viewed
-      response = @conn.get '/feeds/api/standardfeeds/most_viewed'
-      entries = get_entries(response)
+      response = response_from url_for("most_viewed")
+      get_entries(response)
     end
 
     def most_popular
-      response = @conn.get '/feeds/api/standardfeeds/most_popular'
-      entries = get_entries(response)
+      response = response_from url_for("most_popular")
+      get_entries(response)
     end
 
     def most_recent
-      response = @conn.get '/feeds/api/standardfeeds/most_recent'
-      entries = get_entries(response)
+      response = response_from url_for("most_recent")
+      get_entries(response)
     end
 
     def most_discussed
-      response = @conn.get '/feeds/api/standardfeeds/most_discussed'
-      entries = get_entries(response)
+      response = response_from url_for("most_discussed")
+      get_entries(response)
     end
 
     def most_responded
-      response = @conn.get '/feeds/api/standardfeeds/most_responded'
-      entries = get_entries(response)
+      response = response_from url_for("most_responded")
+      get_entries(response)
     end
 
     def recently_featured
-      response = @conn.get '/feeds/api/standardfeeds/recently_featured'
-      entries = get_entries(response)
+      response = response_from url_for("recently_featured")
+      get_entries(response)
     end
 
     def trending_videos
-      response = @conn.get '/feeds/api/standardfeeds/on_the_web'
-      entries = get_entries(response)
+      response = response_from url_for("on_the_web")
+      get_entries(response)
     end
 
     private
 
-    def get_entries(response)
-      entries = []
-      doc = Nokogiri::XML(response.body)
-      doc.css('entry').map do |entry|
-        published   = entry.css('published').text
-        updated     = entry.css('updated').text
-        content     = entry.css('content').text
-        link        = entry.at_css("link")['href']
-        author_name = entry.at_css("author uri").text
+    def response_from(url)
+      @conn.get url      
+    rescue Exception => e
+      raise Error, "Problem retrieving data from #{url}"
+    end
 
-        entry = Entry.new
-        entry.published = published
-        entry.updated   = updated
-        entry.content   = content
-        entry.link      = link
-        entry.author_name = author_name
-        entries << entry
+    def url_for(path)
+      "/feeds/api/standardfeeds/#{path}?alt=json"
+    end
+
+    def get_entries(response)
+      doc = JSON.parse(response.body)       
+      doc['feed']['entry'].map do |entry|
+        Entry.new(
+          published:    entry['published']['$t'],
+          updated:      entry['updated']['$t'],
+          content:      entry['content'],
+          link:         entry['link'][0]['href'],
+          author_name:  entry['author']
+        )
       end
-      entries
     end
   end
 end
