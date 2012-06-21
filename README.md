@@ -38,10 +38,14 @@ Or install it yourself as:
       puts result.updated     # last updated date/time
       puts result.content     # content describing video
       puts result.link        # link to the video
-      puts result.author_name # link to the video
+      puts result.author_name # author name
     end
 
     top_results.size # will tell you how many results come back. No paging yet. Just up to 25 results will be returned
+
+## Feature Requests
+
+    Please email Navid at navidgems@gmail.com if you have suggestions on how to make the youtube_pop gem more useful.
 
 ## Contributing
 
