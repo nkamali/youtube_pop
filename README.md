@@ -45,7 +45,7 @@ Or install it yourself as:
 
 ## Feature Requests
 
-    Please email Navid at navidgems@gmail.com if you have suggestions on how to make the youtube_pop gem more useful.
+    Please email Navid at navidgems at gmail. if you have suggestions on how to make the youtube_pop gem more useful.
 
 ## Contributing
 
